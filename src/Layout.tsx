@@ -1,9 +1,13 @@
 import { Outlet } from "react-router-dom";
+import Header from "./components/Header";
 
 const Layout = () => {
   return (
     <main>
-      <Outlet />
+      <Header />
+      <div className="container w-full h-cover">
+        <Outlet />
+      </div>
     </main>
   );
 };
