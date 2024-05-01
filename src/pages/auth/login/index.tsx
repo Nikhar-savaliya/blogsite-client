@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { routes } from "@/routes/routeObj";
-import { KeyIcon, Mail, User } from "lucide-react";
+import { KeyIcon, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const LoginForm = () => {
