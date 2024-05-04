@@ -1,3 +1,4 @@
+import { registerUser } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,16 +9,76 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
 import { routes } from "@/routes/routeObj";
 import { KeyIcon, Mail, User } from "lucide-react";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 
 const RegisterForm = () => {
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  async function handleSubmit(e: any) {
+    e.preventDefault();
+    const name = nameRef.current?.value;
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    // validating data from frontend
+    let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email
+    let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
+    
+    if (!name || !email || !password) {
+      return toast({
+        variant: "destructive",
+        title: "All fields are required",
+        description: "please fill all 3 fields to register your accound",
+        duration: 1500,
+      });
+    }
+    if (name && name.length < 3) {
+      return toast({
+        variant: "destructive",
+        title: "name must be more than 3 letters",
+        duration: 1500,
+      });
+    }
+
+    if (email && !emailRegex.test(email)) {
+      return toast({
+        variant: "destructive",
+        title: "Invalid email",
+      duration: 1500,
+      });
+    }``
+    if (password && !passwordRegex.test(password)) {
+      return toast({
+        variant: "destructive",
+        title: "Invalid Password",
+        description:
+          "password must be 6 to 20 characters long and consists atleast one digit, one lowercase and one uppercase letter",
+        duration: 1500,
+      });
+    }
+
+    // API CALL
+    const response = await registerUser({ name, email, password });
+    if (response.data.success) {
+      toast({
+        title: "User registed successfully",
+        description: response.data.message,
+        duration: 1500,
+      });
+    }
+  }
+
   return (
     <div className="w-full h-cover flex items-center justify-center">
-      <Card className="w-full max-w-lg border-none shadow-none">
+      <Card className="w-full max-w-lg border-none shadow-none pb-16">
         <CardHeader>
-          <CardTitle className="text-3xl tracking-tight font-serif font-bold text-center">
+          <CardTitle className="text-4xl tracking-tight font-serif font-bold text-center">
             Register
           </CardTitle>
           <CardDescription className="text-center">
@@ -30,6 +91,7 @@ const RegisterForm = () => {
             <Input
               type="text"
               id="text"
+              ref={nameRef}
               placeholder="full name"
               className="pl-10 py-6"
             />
@@ -39,6 +101,7 @@ const RegisterForm = () => {
             <Input
               type="email"
               id="email"
+              ref={emailRef}
               placeholder="email address"
               className="pl-10 py-6"
             />
@@ -48,13 +111,16 @@ const RegisterForm = () => {
             <Input
               type="password"
               id="password"
+              ref={passwordRef}
               placeholder="password"
               className="pl-10 py-6"
             />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-2 justify-center text-sm text-muted-foreground">
-          <Button className="w-full">register</Button>
+          <Button className="w-full" type="submit" onClick={handleSubmit}>
+            register
+          </Button>
           <p>
             <span className="mx-1">already have an account?</span>
             <Link to={routes.login} className="underline">

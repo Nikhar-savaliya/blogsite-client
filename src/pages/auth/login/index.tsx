@@ -1,3 +1,4 @@
+import { loginUser } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,16 +9,86 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
+import { UserContext, UserData } from "@/contexts/UserContext";
+import { storeInSession } from "@/helpers/session";
 import { routes } from "@/routes/routeObj";
 import { KeyIcon, Mail } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useContext, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
+  const { updateUser } = useContext(UserContext);
+  let navigate = useNavigate();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  async function handleSubmit(e: any) {
+    e.preventDefault();
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+    if (!email || !password) {
+      return toast({
+        variant: "destructive",
+        title: "All fields are required",
+        description: "please provide all details to login your account",
+        duration: 1500,
+      });
+    }
+
+    try {
+      const response = await loginUser({ email, password });
+      if (response.status == 200) {
+        const userData: UserData = {
+          profileImg: undefined,
+          username: response.data.username,
+          fullname: response.data.fullname,
+          accessToken: response.data.accessToken,
+        };
+        storeInSession(userData);
+        updateUser(userData);
+        navigate("/");
+        return toast({
+          variant: "success",
+          title: "Login Successful",
+          description: `Welcome Back, ${userData.fullname}`,
+          duration: 1500,
+        });
+      }
+    } catch (error: any) {
+      if (error.response.status == 400) {
+        return toast({
+          variant: "destructive",
+          title: error.response.data.message,
+          description:
+            "the email or password you provided doesn't match with details from server.",
+          duration: 1500,
+        });
+      }
+      if (error.response.status == 500) {
+        return toast({
+          variant: "destructive",
+          title: "server error",
+          description: "we are working on this error, please try again later.",
+          duration: 1500,
+        });
+      } else if (error.response.status == 404) {
+        return toast({
+          variant: "destructive",
+          title: error.response.data.message,
+          description:
+            "No user found with this email. please enter valid email address",
+          duration: 1500,
+        });
+      }
+    }
+  }
+
   return (
     <div className="w-full h-cover flex items-center justify-center ">
-      <Card className="w-full max-w-lg border-none shadow-none">
+      <Card className="w-full max-w-lg border-none shadow-none pb-16">
         <CardHeader>
-          <CardTitle className="text-3xl tracking-tight font-serif font-bold text-center">
+          <CardTitle className="text-4xl tracking-tight font-serif font-bold text-center">
             Login
           </CardTitle>
           <CardDescription className="text-center">
@@ -30,6 +101,7 @@ const LoginForm = () => {
             <Input
               type="email"
               id="email"
+              ref={emailRef}
               placeholder="email address"
               className="pl-10 py-6"
             />
@@ -39,13 +111,16 @@ const LoginForm = () => {
             <Input
               type="password"
               id="password"
+              ref={passwordRef}
               placeholder="password"
               className="pl-10 py-6"
             />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-2 justify-center text-sm text-muted-foreground">
-          <Button className="w-full">login</Button>
+          <Button className="w-full" type="submit" onClick={handleSubmit}>
+            login
+          </Button>
           <p>
             <span className="mx-1">don't have an account?</span>
             <Link to={routes.register} className="underline">

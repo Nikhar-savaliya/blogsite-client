@@ -19,7 +19,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Noto Sans Display", "sans-serif"],
-        serif: ["Noto Serif", "serif"],
+        serif: ["Gelasio", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
