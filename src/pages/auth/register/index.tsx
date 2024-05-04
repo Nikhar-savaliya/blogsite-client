@@ -10,12 +10,17 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { UserContext, UserDataType } from "@/contexts/UserContext";
+import { storeInSession } from "@/helpers/session";
 import { routes } from "@/routes/routeObj";
 import { KeyIcon, Mail, User } from "lucide-react";
-import { useRef } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
+  const { updateUser } = useContext(UserContext);
+  let navigate = useNavigate();
+
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -29,7 +34,7 @@ const RegisterForm = () => {
     // validating data from frontend
     let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email
     let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
-    
+
     if (!name || !email || !password) {
       return toast({
         variant: "destructive",
@@ -50,9 +55,10 @@ const RegisterForm = () => {
       return toast({
         variant: "destructive",
         title: "Invalid email",
-      duration: 1500,
+        duration: 1500,
       });
-    }``
+    }
+    ``;
     if (password && !passwordRegex.test(password)) {
       return toast({
         variant: "destructive",
@@ -64,13 +70,44 @@ const RegisterForm = () => {
     }
 
     // API CALL
-    const response = await registerUser({ name, email, password });
-    if (response.data.success) {
-      toast({
-        title: "User registed successfully",
-        description: response.data.message,
-        duration: 1500,
-      });
+    try {
+      const response = await registerUser({ name, email, password });
+      if (response.status == 201) {
+        const userData: UserDataType = {
+          profileImg: response.data.profileImg || "",
+          username: response.data.username,
+          fullname: response.data.fullname,
+          accessToken: response.data.accessToken,
+        };
+        storeInSession(userData);
+        updateUser(userData);
+        navigate("/");
+        return toast({
+          variant: "success",
+          title: "Login Successful",
+          description: `Welcome, ${userData.fullname}`,
+          duration: 1500,
+        });
+      }
+    } catch (error: any) {
+      console.log();
+      if (error.response.data.message.split(" ")[0] == "E11000") {
+        return toast({
+          variant: "destructive",
+          title: "User already exist with this email",
+          description:
+            "are you sure you dont have registered before with this account",
+          duration: 1500,
+        });
+      }
+      if (error.response.status == 500) {
+        return toast({
+          variant: "destructive",
+          title: "server error",
+          description: "we are working on this error, please try again later.",
+          duration: 1500,
+        });
+      }
     }
   }
 

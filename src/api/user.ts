@@ -28,8 +28,12 @@ async function registerUser(formData: {
   email: string;
   password: string;
 }): Promise<AxiosResponse> {
-  const response = await api.post("/users/register", formData);
-  return response;
+  try {
+    const response = await api.post("/users/register", formData);
+    return response;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export { loginUser, registerUser };

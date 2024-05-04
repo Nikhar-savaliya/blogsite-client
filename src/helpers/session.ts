@@ -10,16 +10,13 @@ function getUserDataFromSession(): UserDataType {
 }
 
 function clearUserDataFromSession() {
-  localStorage.removeItem("userData");
+  const userDataFormat = {
+    accessToken: "",
+    fullname: "",
+    username: "",
+    profileImg: "",
+  };
+  localStorage.setItem("userData", JSON.stringify(userDataFormat));
 }
 
-function userLogout() {
-  localStorage.clear();
-}
-
-export {
-  getUserDataFromSession,
-  clearUserDataFromSession,
-  storeInSession,
-  userLogout,
-};
+export { getUserDataFromSession, clearUserDataFromSession, storeInSession };

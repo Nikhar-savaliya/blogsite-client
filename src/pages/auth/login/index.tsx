@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-import { UserContext, UserData } from "@/contexts/UserContext";
+import { UserContext, UserDataType } from "@/contexts/UserContext";
 import { storeInSession } from "@/helpers/session";
 import { routes } from "@/routes/routeObj";
 import { KeyIcon, Mail } from "lucide-react";
@@ -39,7 +39,7 @@ const LoginForm = () => {
     try {
       const response = await loginUser({ email, password });
       if (response.status == 200) {
-        const userData: UserData = {
+        const userData: UserDataType = {
           profileImg: undefined,
           username: response.data.username,
           fullname: response.data.fullname,
