@@ -35,7 +35,7 @@ const browserRouter = createBrowserRouter([
         element: <ProfilePage />,
       },
       {
-        path: "blog/:id",
+        path: "blog/:blogId",
         element: <BlogPage />,
       },
       {
