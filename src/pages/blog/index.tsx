@@ -1,7 +1,9 @@
-import React from "react";
+import { useParams } from "react-router-dom";
 
 const BlogPage = () => {
-  return <div>BlogPage</div>;
+  const { id } = useParams();
+
+  return <div>BlogPage of {id}</div>;
 };
 
 export default BlogPage;
