@@ -13,17 +13,20 @@ import { toast } from "@/components/ui/use-toast";
 import { UserContext, UserDataType } from "@/contexts/UserContext";
 import { storeInSession } from "@/helpers/session";
 import { routes } from "@/routes/routeObj";
-import { KeyIcon, Mail, User } from "lucide-react";
-import { useContext, useRef } from "react";
+import { Eye, EyeOff, KeyIcon, Mail, User } from "lucide-react";
+import { useContext, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const RegisterForm = () => {
   const { updateUser } = useContext(UserContext);
+
   let navigate = useNavigate();
 
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+
+  const [isVisible, setIsvisible] = useState(false);
 
   async function handleSubmit(e: any) {
     e.preventDefault();
@@ -146,12 +149,26 @@ const RegisterForm = () => {
           <div className="relative">
             <KeyIcon className="absolute left-4 top-[18px] h-4 w-4 text-muted-foreground" />
             <Input
-              type="password"
+              type={isVisible ? "text" : "password"}
               id="password"
               ref={passwordRef}
               placeholder="password"
               className="pl-10 py-6"
             />
+            <Button
+              variant={"secondary"}
+              className="absolute top-[8px] right-1 bg-transparent shadow-none transition-all duration-200"
+              onClick={() => {
+                setIsvisible((isVisible) => !isVisible);
+                console.log(isVisible);
+              }}
+            >
+              {!isVisible ? (
+                <Eye className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <EyeOff className="h-5 w-5 text-muted-foreground" />
+              )}
+            </Button>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-2 justify-center text-sm text-muted-foreground">
