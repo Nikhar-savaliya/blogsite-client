@@ -1,8 +1,9 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import BlogPostCard from "./components/BlogPost";
 import { Button } from "./components/ui/button";
 import { TrendingUp } from "lucide-react";
 import NoBannerBlogCard from "./components/NoBannerBlogCard";
+import InPageNavigation, { activeTabRef } from "./components/InPageNavigation";
 
 const Home = () => {
   let categories = [
@@ -17,9 +18,13 @@ const Home = () => {
 
   const [pageState, setPageState] = useState("home");
 
+  useEffect(() => {
+    activeTabRef.current.click();
+  }, [pageState]);
+
   return (
     <section className=" grid grid-cols-3 gap-8 h-cover py-8">
-      <LeftPanelComponent />
+      <LeftPanelComponent pageState={pageState} />
       <RightPanelComponent
         pageState={pageState}
         categories={categories}
@@ -29,7 +34,7 @@ const Home = () => {
   );
 };
 
-const LeftPanelComponent = () => {
+const LeftPanelComponent = ({ pageState }: any) => {
   const homepageBlogs = {
     blogs: [
       {
@@ -109,12 +114,17 @@ const LeftPanelComponent = () => {
   };
   return (
     <div className=" col-span-2 flex flex-col gap-8">
-      {homepageBlogs.blogs.map((blog, index) => {
-        return <BlogPostCard {...blog} key={index} />;
-      })}
-      <Button variant={"link"} className="w-fit">
-        Load more
-      </Button>
+      <InPageNavigation
+        routes={[pageState, "treading blogs"]}
+        defaultHidden={["treading blogs"]}
+      >
+        {homepageBlogs.blogs.map((blog, index) => {
+          return <BlogPostCard {...blog} key={index} />;
+        })}
+        <Button variant={"link"} className="w-fit">
+          Load more
+        </Button>
+      </InPageNavigation>
     </div>
   );
 };
